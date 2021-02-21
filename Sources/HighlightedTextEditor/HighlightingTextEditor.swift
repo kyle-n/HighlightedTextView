@@ -93,11 +93,18 @@ extension HighlightingTextEditor {
     }
     
     static func getHighlightedText(text: String, highlightRules: [HighlightRule], font: SystemFontAlias?, color: SystemColorAlias?) -> NSMutableAttributedString {
+        let rows = text.components(separatedBy: "\n")
         let highlightedString = NSMutableAttributedString(string: text)
-        let all = NSRange(location: 0, length: text.count)
+        let all = NSRange(location: 0, length: text.utf16.count)
         
         let editorFont = font ?? defaultEditorFont
         let editorTextColor = color ?? defaultEditorTextColor
+        
+        rows.forEach { row in
+            if row != "" {
+                MultiTLString.setAlignment(DetectLineLanguage().detect(for: row) == true ? .right : .left, for: row)
+            }
+        }
         
         highlightedString.addAttribute(.font, value: editorFont, range: all)
         highlightedString.addAttribute(.foregroundColor, value: editorTextColor, range: all)
